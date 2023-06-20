@@ -1,2 +1,2 @@
-# PersonalStudyRepository
-This repository is used for personal study records.
+# JavaPSRepo
+This repository is used for personal Java study records.
