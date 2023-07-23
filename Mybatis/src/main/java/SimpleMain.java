@@ -81,7 +81,7 @@ public class SimpleMain {
             //      14.最后调用resultSetHandler.handleResultSets(ps)处理返回结果
             //          其中会使用typeHandler获取value的值
             //      补充：TypeHandler：在整个过程中，进行数据库类型和javaBean类型的映射
-            Blog blog = mapper.selectBlog(1);
+            Blog blog = mapper.selectBlog(1, "1");
             System.out.println(blog);
         }
     }

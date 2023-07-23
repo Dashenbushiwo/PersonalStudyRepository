@@ -1,2 +1,2 @@
 # PersonalStudyRepository
-This repository is used for personal study records.
+该仓库用于个人学习记录

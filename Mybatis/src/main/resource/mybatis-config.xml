@@ -12,9 +12,23 @@
         可使用databaseIdProvider来配置多数据源（不同数据库等）
     -->
     <properties resource="db-config.properties"/>
+<!--    <settings>-->
+<!--        &lt;!&ndash; 配置打印sql日志 &ndash;&gt;-->
+<!--        <setting name="logImpl" value="STDOUT_LOGGING" />-->
+<!--    </settings>-->
     <typeAliases>
         <package name="main.java.entity"/>
     </typeAliases>
+    <plugins>
+        <!-- 多个插件的话会产生多层代理对象
+             创建动态代理时（即执行Interceptor.plugin方法）是按照插件配置顺序创建层层代理对象
+             后续则按逆序顺序执行Interceptor.intercept方法（像剥洋葱一样一层一层执行）
+         -->
+        <plugin interceptor="main.java.interceptor.MyFirstInterceptor">
+            <property name="username" value="root"/>
+            <property name="password" value="123456"/>
+        </plugin>
+    </plugins>
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
