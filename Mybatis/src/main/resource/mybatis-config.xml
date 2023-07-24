@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--
+        https://mybatis.org/mybatis-3/zh/configuration.html#settings
+        各项配置项的详细解释均可参考上述网址
+        1. properties标签用于引入外部properties配置文件的内容
+            resource:类路径下资源
+            url:网络路径或者磁盘路径下资源
+        可使用databaseIdProvider来配置多数据源（不同数据库等）
+    -->
+    <properties resource="db-config.properties"/>
+<!--    <settings>-->
+<!--        &lt;!&ndash; 配置打印sql日志 &ndash;&gt;-->
+<!--        <setting name="logImpl" value="STDOUT_LOGGING" />-->
+<!--    </settings>-->
+    <typeAliases>
+        <package name="main.java.entity"/>
+    </typeAliases>
+    <plugins>
+        <!-- 多个插件的话会产生多层代理对象
+             创建动态代理时（即执行Interceptor.plugin方法）是按照插件配置顺序创建层层代理对象
+             后续则按逆序顺序执行Interceptor.intercept方法（像剥洋葱一样一层一层执行）
+         -->
+        <plugin interceptor="main.java.interceptor.MyFirstInterceptor">
+            <property name="username" value="root"/>
+            <property name="password" value="123456"/>
+        </plugin>
+    </plugins>
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <package name="main/java/mapper"/>
+    </mappers>
+    <!-- 缓存机制
+        MyBatis默认定义了两级缓存-一级缓存和二级缓存
+        1.默认情况下，只有一级缓存（SqlSession级别的缓存，也称为本地缓存）开启
+        2.二级缓存需要手动开启和配置，他是基于namespace级别的缓存
+        3.为了提高扩展性。MyBatis定义了缓存接口Cache。可以通过实现Cache接口来自定义二级缓存
+
+        一级缓存：（本地缓存）：sqlSession级别的缓存。一级缓存是一直开启的。sqlSession级别的一个Map
+            与数据库同一次会话期间查询到的数据会放在本地缓存中。
+            以后如果需要获取相同的数据，直接从缓存中拿，没必要再去查询数据库。
+            一级缓存失效情况
+            1.sqlSession不同
+            2.sqlSession相同，查询条件不同
+            3.sqlSession相同，两次查询之间执行了增删改操作
+            4.sqlSession相同，手动清空了缓存
+        二级缓存：（全局缓存）：基于namespace级别的缓存
+            工作机制：
+            1.一个会话，查询数据，这个数据会被放在一级缓存中
+            2.如果会话关闭，一级缓存中的数据会被保存到二级缓存中
+                （注意：一定要openSession提交或关闭，否则不会触发将一级缓存转移到二级缓存中）
+            3.不同namespace查出数据会放在自己对应的缓存中(map)
+            使用：
+                （1）开启全局二级缓存配置
+                （2）去mapper.xml配置使用缓存<cache></cache>
+                （3）POJO需要实现序列化接口（缓存非只读时会通过序列化的方式克隆给我们返回缓存的数据）
+        第三方缓存整合：
+            1.导入第三方缓存包即可
+            2.导入与第三方缓存整合的适配包；官方有；
+            3.mapper.xml中使用自定义缓存即<cache />标签指定type
+            <cache type="org.mybatis.caches.ehcache.EhcacheCache />
+    -->
+</configuration>
