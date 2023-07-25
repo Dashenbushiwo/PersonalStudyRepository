@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!-- 开启注解扫描 -->
+    <context:component-scan base-package="main.java" />
+    <!-- 引入外部属性文件-->
+    <context:property-placeholder location="db-config.properties" />
+    <!-- 配置blog对象的创建，默认执行无参构造
+         id:唯一标识
+         class：类全路径
+         scope：作用域：默认singleton，单例对象；
+                prototype，多实例；多实例时在调用的时候才创建对象
+         bean生命周期：从对象创建到对象销毁的过程
+         1. 通过构造器创建bean实例（无参数构造）
+         2. 为bean的属性设置值和对其他bean引用（调用set方法）
+         3. init-method：调用bean的初始化的方法（需要进行配置初始化的方法）
+         4. bean可以使用了
+         5. destroy-method：当容器关闭的时候，调用bean的销毁的方法（需要进行配置销毁的方法）
+         autowire配置自动装配
+            byName：根据属性名称注入，注入值bean的id值和类属性名称一样
+            byType：根据类型注入
+     -->
+    <bean id="blog" class="main.java.entity.Blog" scope="prototype">
+        <!-- DI依赖注入，构造器方式注入 -->
+        <constructor-arg name="id" value="1" />
+        <!-- DI依赖注入，set方式注入，P标签注入底层也是该set方式注入 -->
+        <property name="name" value="小明" />
+    </bean>
+    <!-- 后置处理器-需要实现BeanPostProcessor接口
+        postProcessBeforeInitialization：在所有bean生命周期init-method方法执行前执行
+        postProcessAfterInitialization：在所有bean生命周期init-method方法执行后执行
+     -->
+<!--    <bean id="myPostProcess" class="main.java.process.MyPostProcess"  />-->
+    <!-- 开启aspectj生成代理对象 -->
+    <aop:aspectj-autoproxy />
+    <!-- 数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+    <!-- 配置jdbcTemplate对象，注入DataSource -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <!-- 注入dataSource -->
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+</beans>
