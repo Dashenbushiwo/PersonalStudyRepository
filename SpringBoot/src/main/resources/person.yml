@@ -1,0 +1,12 @@
+person:
+  lastName: 张三${random.uuid}
+  age: 18
+  boss: false
+  birth: 2023/10/23
+  map: {k1: v1, k2: v2}
+  list:
+    - 李四
+    - 王五
+  dog:
+    name: ${person.lastName}的小狗
+    age: 2
