@@ -1,0 +1,73 @@
+server:
+  port: 8001
+
+mybatis:
+  config-location: classpath:mybatis/mybatis.cfg.xml        # mybatis配置文件所在路径
+  type-aliases-package: com.ps.cloud.entity                 # 所有Entity别名类所在包
+  mapper-locations:
+    - classpath:mybatis/mapper/**/*.xml                     # mapper映射文件
+
+spring:
+  application:
+    name: microservicecloud-dept
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource            # 当前数据源操作类型
+    driver-class-name: org.gjt.mm.mysql.Driver              # mysql驱动包
+    url: jdbc:mysql://localhost:3306/cloudDB01              # 数据库名称
+    username: root
+    password: root
+    dbcp2:
+      min-idle: 5                                           # 数据库连接池的最小维持连接数
+      initial-size: 5                                       # 初始化连接数
+      max-total: 5                                          # 最大连接数
+      max-wait-millis: 200                                  # 等待连接获取的最大超时时间
+
+eureka:
+  instance:
+    instance-id: microservicecloud-dept8001-circuit-breaker
+    prefer-ip-address: true # 访问路径可以显示IP地址
+  client:
+    service-url:  # 客户端注册进eureka服务列表内
+#      defaultZone: http://localhost:7001/eureka
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/,http://eureka7003.com:7003/eureka/
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        ringBufferSizeInClosedState: 5 # 熔断器关闭时的缓冲区大小
+        ringBufferSizeInHalfOpenState: 2 # 熔断器半开时的缓冲区大小
+        waitDurationInOpenState: 3000 # 熔断器从打开到半开需要的时间
+        failureRateThreshold: 2 # 熔断器打开的失败阈值
+        eventConsumerBufferSize: 10 # 事件缓冲区大小
+        registerHealthIndicator: true # 健康监测
+        automaticTransitionFromOpenToHalfOpenEnabled: false # 是否自动从打开到半开，不需要触发
+#        recordFailurePredicate: com.example.resilience4j.exceptions.RecordFailurePredicate # 谓词设置异常是否为失败
+#        recordExceptions: # 记录的异常
+#          - com.example.resilience4j.exceptions.BusinessBException
+#          - com.example.resilience4j.exceptions.BusinessAException
+#        ignoreExceptions: # 忽略的异常
+#          - com.example.resilience4j.exceptions.BusinessAException
+    instances:
+      backendA:
+        baseConfig: default
+        waitDurationInOpenState: 5000
+        failureRateThreshold: 5
+      backendB:
+        baseConfig: default
+
+management:
+  info: # 显示任意的应用信息，默认关闭  springBoot版本：2.7.5 CURRENT  GA如果是更低一些的版本默认是开启的
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info
+
+info:
+  app.name: ${spring.application.name}
+  company.name: com.ps.cloud
+  description: 我是老六
+  build.artifactId: ${project.artifactId}
+  build.version: ${project.version}
